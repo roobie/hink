@@ -55,11 +55,14 @@
             if (result.length == 1) {
                 result[0].value = newValue;
             }
+            if (result.length == 0) {
+                throw Error("No element found with that key");
+            }
         };
 
-        this.add = function (kvp) {
-            if (kvp instanceof kvp) {
-                kvpairs.push(kvp);
+        this.add = function (kv) {
+            if (kv instanceof kvp) {
+                kvpairs.push(kv);
             } else {
                 throw TypeError("Parameter is not of type ds.KeyValuePair.")
             }
@@ -211,5 +214,4 @@
     }
 
 }).call(this);
-
 
