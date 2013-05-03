@@ -16,13 +16,9 @@ describe('Dictionary', function() {
 
     describe('#ctor', function() {
         it('should not accept object that are not instances of KeyValuePair', function() {
-            try {
-                new ds.Dictionary("")
-            } catch (e) {
-                assert.ok(e);
-                return;
-            }
-            assert.fail();
+            assert.throws(function() {
+                var asd = new Dictionary("");
+            });
         });
     });
 
@@ -53,7 +49,7 @@ describe('Dictionary', function() {
             dict.remove(testKvp2.key);
             setTimeout(function() {
                 assert.equal(dict.get(testKvp2.key), undefined);
-            }, 1);
+            }, 2);
         });
     });
 });

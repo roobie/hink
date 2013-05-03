@@ -102,6 +102,10 @@
             });
         };
 
+        this.pairs = function() {
+            return kvpairs.splice(0);
+        };
+
         for (var i = 0, max = arguments.length; i < max; i++) {
             var item = arguments[i];
             if (item instanceof kvp) {
