@@ -69,12 +69,24 @@
         }
     }
 
-    if (root.require && typeof root.define == 'function') {
-        root.define([], ds);
-    } else {
-        root.ds = ds;
+    // CommonJS module is defined
+    if (hasModule) {
+        module.exports = ds;
+    }
+    /*global ender:false */
+    if (typeof ender === 'undefined') {
+        // here, `this` means `window` in the browser, or `global` on the server
+        // add `moment` as a global object via a string identifier,
+        // for Closure Compiler "advanced" mode
+        this['ds'] = ds;
+    }
+    /*global define:false */
+    if (typeof define === "function" && define.amd) {
+        define("ds", [], function () {
+            return ds;
+        });
     }
 
-}(global || window));
+}).call(this);
 
 
