@@ -29,61 +29,58 @@
         // =====================================================================
         var kvpairs = [];
 
-        this.get = function(key) {
-            var result = kvpairs.filter(function(kvp) {
-                if (kvp.key === key) {
-                    return kvp.value;
+        var find = function(key, callback) {
+            var f = function() {
+                for (var i = 0, max = kvpairs.length; i < max; i++) {
+                    if (kvpairs[i].key === key) {
+                        return [kvpairs[i], i];
+                    }
                 }
-            });
-            if (result.length > 1) {
-                throw Error("More than one result in result set");
             }
-            if (result.length == 1) {
-                return result[0].value;
+            var result = f();
+            if (result) {
+                if (callback && typeof callback == 'function') {
+                    callback(result[0], result[1]);
+                } else {
+                    return result[0];
+                }
+            }
+        };
+
+        this.get = function(key) {
+            var result = find(key);
+            if (result) {
+                return result.value;
             }
         };
 
         this.set = function(key, newValue) {
-            var result = kvpairs.filter(function(kvp) {
-                if (kvp.key === key) {
-                    return kvp.value;
-                }
-            });
-            if (result.length > 1) {
-                throw Error("More than one result in result set");
+            var result = find(key);
+            if (result) {
+                result.value = newValue;
+                return true;
             }
-            if (result.length == 1) {
-                result[0].value = newValue;
-            }
-            if (result.length == 0) {
-                throw Error("No element found with that key");
-            }
+            return false;
         };
 
-        this.add = function (kv) {
-            if (kv instanceof kvp) {
-                kvpairs.push(kv);
+        this.add = function (kvpair) {
+            if (kvpair instanceof kvp) {
+                if (!this.get(kvpair.key)) {
+                    kvpairs.push(kvpair);
+                } else {
+                    throw Error("The key: `" + item.key + "` already exists in this Dictionary");
+                }
             } else {
                 throw TypeError("Parameter is not of type ds.KeyValuePair.")
             }
         }
 
         this.remove = function(key) {
-            var kvp = this.get(key);
-            if (kvp) {
-                var index = kvpairs.filter(function(item, index) {
-                    if (item.key === key) {
-                        return index;
-                    }
-                });
-
-                if (index.length > 1) {
-                    throw Error("More than one element found!");
-                } else {
-                    index = index[0];
-                }
-                kvpairs.splice(index, 1);
-            }
+            var removed;
+            find(key, function(kvpair, index) {
+                removed = kvpairs.splice(index, 1);
+            });
+            return removed;
         }
 
         this.count = function () {
@@ -107,16 +104,8 @@
         };
 
         for (var i = 0, max = arguments.length; i < max; i++) {
-            var item = arguments[i];
-            if (item instanceof kvp) {
-                if (!this.get(item.key)) {
-                    kvpairs.push(item);
-                } else {
-                    throw Error("The key: `" + item.key + "` already exists in this Dictionary");
-                }
-            } else {
-                throw TypeError("Parameter is not an instance of `asd.KeyValuePair`");
-            }
+            var kvpair = arguments[i];
+            this.add(kvpair);
         }
     };
 
