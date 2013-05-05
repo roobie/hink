@@ -55,8 +55,7 @@ describe('Dictionary', function() {
     describe('#remove', function() {
         it('should remove the key value pair based on key', function() {
             dict.remove(testKvp2.key, function(r) {
-                assert.equal(r.key, testKvp2.key);
-                assert.equal(r.value, testKvp2.value);
+                assert.equal(r.equal(testKvp2), true);
             });
             assert.equal(dict.get(testKvp2.key), undefined);
         });
@@ -80,6 +79,28 @@ describe('Dictionary', function() {
             }
             for (var i = 0, max = kvpList.length; i < max; i++) {
                 assert.notEqual(keys.indexOf(kvpList[i].key), -1);
+            }
+        });
+    });
+
+    describe('#values', function() {
+        it('should return all values in the dictionary', function() {
+            var values = dict.values();
+            for (var i = 0, max = values.length; i < max; i++) {
+                assert.notEqual(values.indexOf(kvpList[i].value), -1);
+            }
+            for (var i = 0, max = kvpList.length; i < max; i++) {
+                assert.notEqual(values.indexOf(kvpList[i].value), -1);
+            }
+        });
+    });
+
+    describe('#pairs', function() {
+        it('should return all pairs in the dictionary', function() {
+            var pairs = dict.pairs().sort();
+            var ref = kvpList.sort();
+            for (var i = 0, max = pairs.length; i < max; i++) {
+                assert.equal(pairs[i].equal(ref[i]), true);
             }
         });
     });

@@ -19,8 +19,24 @@
         // =====================================================================
         // Represents a key/value pair.
         // =====================================================================
-        this.key = key;
-        this.value = value;
+        if (key && value) {
+            // user supplied a key and value
+            this.key = key;
+            this.value = value;
+        } else if (key && !value) {
+            // user supplied an object as first and only arg
+            // which should contain the key and value.
+            var map = key;
+            this.key = map.key;
+            this.value = map.value;
+        }
+
+        this.equal = function(other) {
+            if (other instanceof kvp) {
+                return this.key === other.key && this.value === other.value;
+            }
+            return false;
+        }
     };
 
     var dict = ds.Dictionary = function() {
@@ -75,12 +91,13 @@
             }
         }
 
-        this.remove = function(key) {
-            var removed;
+        this.remove = function(key, callback) {
             find(key, function(kvpair, index) {
-                removed = kvpairs.splice(index, 1);
+                kvpairs.splice(index, 1);
+                if (callback && typeof callback == 'function') {
+                    callback(kvpair);
+                }
             });
-            return removed;
         }
 
         this.count = function () {
@@ -101,6 +118,10 @@
 
         this.pairs = function() {
             return kvpairs.splice(0);
+        };
+
+        this.toString = function() {
+            return JSON.stringify(kvpairs);
         };
 
         for (var i = 0, max = arguments.length; i < max; i++) {
