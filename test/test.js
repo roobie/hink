@@ -19,6 +19,7 @@ describe('KeyValuePair', function() {
             assert.equal(kvp1.key, key1);
             assert.equal(kvp1.value, value1);
         });
+
         it('should allow key and value to be passed in an object as first parameter', function() {
             assert.equal(kvp2.key, key2);
             assert.equal(kvp2.value, value2);
@@ -76,6 +77,37 @@ describe('Dictionary', function() {
         it('should set the value of the kvp to the new value', function() {
             var nv = "NEWVAL";
             dict.set(testKvp2.key, nv);
+            assert.equal(dict.get(testKvp2.key), nv);
+        });
+
+        it('should accept a kvp object', function() {
+            var nv = "NEWVAL";
+            testKvp2.value = nv;
+            dict.set(testKvp2);
+            assert.equal(dict.get(testKvp2.key), nv);
+        });
+    });
+
+    describe('#put', function() {
+        it('should set the value of the kvp to the new value if it exists', function() {
+            var nv = "ASDASDASD";
+            var tkvp1 = new ds.KeyValuePair(testKvp1.key, nv);
+            dict.put(tkvp1.key, tkvp1.value);
+            assert.equal(dict.get(testKvp1.key), nv);
+        });
+
+        it('Otherwise add the kvp', function() {
+            var nk = "KEYASDASDASD";
+            var nv = "VALUEASDASDASD";
+            var tkvp1 = new ds.KeyValuePair(nk, nv);
+            dict.put(tkvp1.key, tkvp1.value);
+            assert.equal(dict.get(tkvp1.key), nv);
+        });
+
+        it('should accept a kvp object', function() {
+            var nv = "NEWVALFORPUT";
+            testKvp2.value = nv;
+            dict.put(testKvp2);
             assert.equal(dict.get(testKvp2.key), nv);
         });
     });
@@ -142,3 +174,138 @@ describe('Dictionary', function() {
     });
 });
 
+var Tuple = ds.Tuple;
+describe('Tuple', function() {
+    var tupl, limit = 2, i1 = {a:123}, i2 = {b:234}, refList = [i1, i2];
+
+    var init = function() {
+        tupl = new ds.Tuple(limit, refList);
+    }
+
+    beforeEach(init);
+
+    describe('#limit', function() {
+        it('should return the limit of the tuple', function() {
+            assert.equal(tupl.limit(), limit);
+        });
+    });
+
+    describe('#count', function() {
+        it('should return the current count of items in the tuple', function() {
+            assert.equal(tupl.count(), refList.length);
+            assert.equal(new ds.Tuple(5, i1).count(), 1);
+        });
+    });
+
+    describe('#ctor', function() {
+        it('should accept the limit as first arg, and objects to add to the data as the rest.', function() {
+            var lim = 5;
+            var t = new ds.Tuple(lim, 1, 2, 3, 4, 5);
+            assert.equal(t.count(), lim);
+        });
+
+        it('should accept the limit as first arg, and an array as second with the data', function() {
+            var lim = 5;
+            var data = (function() {
+                var tmp = [];
+                for (var i = lim; i--;) {
+                    tmp.push(i);
+                }
+                return tmp;
+            }());
+            var t = new ds.Tuple(lim, data);
+            assert.equal(t.count(), data.length);
+        });
+
+        it('should throw if first arg isn\'t a number', function() {
+            assert.throws(function() {
+                new ds.Tuple("")
+            });
+
+            assert.throws(function() {
+                new ds.Tuple();
+            });
+        });
+
+        it('should throw if first arg is zero or negative', function() {
+            assert.throws(function() {
+                new ds.Tuple(0)
+            });
+            assert.throws(function() {
+                new ds.Tuple(-100)
+            });
+        });
+    });
+
+    describe('#get', function() {
+        it('should get the object at the supplied index', function() {
+            var t = new ds.Tuple(limit, i1);
+            assert.equal(t.get(0), i1);
+        });
+
+        it('should throw if index is out of bounds', function() {
+            var t = new ds.Tuple(limit);
+            assert.throws(function() {
+                t.get(100);
+            });
+        });
+    });
+
+    describe('#add', function() {
+        it('should add the supplied object to the Tuple if there\'s space left', function() {
+            var t = new ds.Tuple(limit, i1);
+            t.add(i2);
+            assert.equal(t.get(0), i1);
+            assert.equal(t.get(1), i2);
+        });
+
+        it('should throw if reached limit', function() {
+            var t = new ds.Tuple(limit, i1);
+            t.add(i2);
+            assert.throws(function() {
+                t.add({c:345});
+            });
+        });
+    });
+
+    describe('#put', function() {
+        it('should update the object at the supplied index with the supplied value if index <= limit', function() {
+            var t = new ds.Tuple(limit, i1);
+            var i3 = {c:345};
+            t.put(0, i3);
+            t.put(1, i2);
+            assert.equal(t.get(0), i3);
+            t.put(0, i1);
+            assert.equal(t.get(0), i1);
+            assert.equal(t.get(1), i2);
+        });
+
+        it('should throw if index > limit', function() {
+            var t = new ds.Tuple(limit, i1);
+            t.add(i2);
+            assert.throws(function() {
+                t.put(2, {c:345});
+            });
+        });
+    });
+});
+
+var Stack = ds.Stack;
+describe('Stack', function() {
+
+    var testData = [1, 2, 3, 'a', 'b', 'c', {a:123}, [3,2,1]];
+
+    var testStack = function(data, stack) {
+        for (var i = data.length; i--;) {
+            var curr = stack.pop();
+            assert.equal(curr, data[i]);
+        }
+    };
+
+    describe('#ctor', function() {
+        it('should accept an array as arg to init the data', function() {
+            var s = new ds.Stack(testData);
+            testStack(testData, s);
+        });
+    });
+});

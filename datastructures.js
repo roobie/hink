@@ -58,6 +58,18 @@
             }
         };
 
+        var getKVPair = function(args) {
+            var kvpair;
+            if (args.length == 1 && args[0] instanceof kvp) {
+                kvpair = args[0];
+            } else if (args[0] && args[1]) {
+                kvpair = new kvp(args[0], args[1]);
+            } else {
+                throw Error('Wrong arguments passed to getKVPair. Pass either one KeyValuePair XOR (one key AND one value)');
+            }
+            return kvpair;
+        };
+
         this.get = function(key) {
             var result = find(key);
             if (result) {
@@ -66,12 +78,22 @@
         };
 
         this.set = function(key, newValue) {
-            var result = find(key);
+            var kvpair = getKVPair(arguments),
+                result = find(kvpair.key);
             if (result) {
-                result.value = newValue;
+                result.value = kvpair.value;
                 return true;
             }
             return false;
+        };
+
+        this.put = function(key, value) {
+            var kvpair = getKVPair(arguments);
+            if (this.get(kvpair.key)) {
+                this.set(kvpair.key, kvpair.value);
+            } else {
+                this.add(kvpair);
+            }
         };
 
         this.add = function (kvpair) {
@@ -79,7 +101,7 @@
                 if (!this.get(kvpair.key)) {
                     kvpairs.push(kvpair);
                 } else {
-                    throw Error("The key: `" + item.key + "` already exists in this Dictionary");
+                    throw Error("The key: `" + kvpair.key + "` already exists in this Dictionary");
                 }
             } else {
                 throw TypeError("Parameter is not of type ds.KeyValuePair.")
@@ -112,7 +134,7 @@
         };
 
         this.pairs = function() {
-            return kvpairs.splice(0);
+            return kvpairs.slice(0);
         };
 
         this.toString = function() {
@@ -125,11 +147,29 @@
         }
     };
 
+    var atoa = function(args) {
+        var data = [];
+        if (args.length > 1) {
+            data = Array.prototype.slice.call(args, 0);
+        } else if (args.length == 1) {
+            if (isArray(args[0])) {
+                data = args[0].slice(0);
+            } else {
+                data = [args[0]];
+            }
+        }
+        return data;
+    }
+
     var tuple = ds.Tuple = function(limit /* &rest*/) {
         // =====================================================================
         // Represents a fixed size array.
         // =====================================================================
-        if (typeof limit !== 'number' && limit < 1) {
+        if (!limit) {
+            throw Error("Invalid arguments");
+        }
+
+        if (typeof limit !== 'number' || limit < 1) {
             throw Error("Limit must be a number above 0.");
         }
 
@@ -139,7 +179,7 @@
             if (data.length < limit) {
                 data.push(element);
             } else {
-                throw Error("this Tuple has reached it's limit.'");
+                throw Error("This Tuple has reached it's limit [" + limit + "].");
             }
         };
 
@@ -147,7 +187,15 @@
             if (index < limit) {
                 return data[index];
             } else {
-                throw Error("index is out of bounds: " + index + " > " + limit + ".");
+                throw Error("Index is out of bounds: " + index + " > " + limit + ".");
+            }
+        };
+
+        this.put = function(index, element) {
+            if (index < limit) {
+                data[index] = element;
+            } else {
+                throw Error("Index is out of bounds: " + index + " > " + limit + ".");
             }
         };
 
@@ -159,25 +207,17 @@
             return data.length;
         };
 
-        arguments.shift();
-        if (arguments.length > limit) {
-            throw Error("More items than allowed by limit.");
+        Array.prototype.shift.call(arguments);
+        var d = atoa(arguments);
+
+        if (d.length > limit) {
+            throw Error(["Too many objects! Number supplied: [", d.length, "], limit: [", limit, "]."].join(''));
         }
-        for (var i = 0, max = arguments.length; i < max; i++) {
-            data.push(arguments[i]);
-        }
+        data = d;
     };
 
     var stack = ds.Stack = function() {
-        var data = [];
-
-        if (arguments.length > 1) {
-            data = arguments;
-        } else if (arguments.length == 1) {
-            if (isArray(arguments[0])) {
-                data = arguments[0];
-            }
-        }
+        var data = atoa(arguments);
 
         this.push = function(element) {
             data.push(element);
