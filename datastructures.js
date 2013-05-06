@@ -155,6 +155,10 @@
             return limit;
         };
 
+        this.count = function() {
+            return data.length;
+        };
+
         arguments.shift();
         if (arguments.length > limit) {
             throw Error("More items than allowed by limit.");
@@ -167,8 +171,12 @@
     var stack = ds.Stack = function() {
         var data = [];
 
-        if (isArray(arguments[0])) {
-            data = arguments[0];
+        if (arguments.length > 1) {
+            data = arguments;
+        } else if (arguments.length == 1) {
+            if (isArray(arguments[0])) {
+                data = arguments[0];
+            }
         }
 
         this.push = function(element) {
