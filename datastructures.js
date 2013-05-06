@@ -26,7 +26,7 @@
             this.value = map.value;
         }
 
-        this.equal = function(other) {
+        this.equal = function(other) { // by value
             if (other instanceof kvp) {
                 return this.key === other.key && this.value === other.value;
             }
@@ -233,7 +233,7 @@
     };
 
     var queue = ds.Queue = function() {
-        var data = [];
+        var data = atoa(arguments);
 
         this.enq = function(element) {
             data.push(element);

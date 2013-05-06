@@ -293,7 +293,7 @@ describe('Tuple', function() {
 var Stack = ds.Stack;
 describe('Stack', function() {
 
-    var testData = [1, 2, 3, 'a', 'b', 'c', {a:123}, [3,2,1]];
+    var testData = [{a: 123}, [3, 2, 1], 1, 2, 3, 'a', 'b', 'c'];
 
     var testStack = function(data, stack) {
         for (var i = data.length; i--;) {
@@ -306,6 +306,107 @@ describe('Stack', function() {
         it('should accept an array as arg to init the data', function() {
             var s = new ds.Stack(testData);
             testStack(testData, s);
+        });
+
+        it('should accept varargs to init the data', function() {
+            var t = testData;
+            var u = [t[0], t[1], t[2]];
+            var s = new ds.Stack(t[0], t[1], t[2]);
+            testStack(u, s);
+        });
+
+        it('should also accept no arguments', function() {
+            var s = new ds.Stack();
+        });
+    });
+
+    describe('#peek', function() {
+        it('should return the element that is first to be popped', function() {
+            var s = new ds.Stack(testData);
+            assert.equal(testData[testData.length - 1], s.peek());
+        });
+    });
+
+    describe('#push', function() {
+        it('should add the element to the end of stack', function() {
+            var s = new ds.Stack();
+            for(var i = 0, max = testData.length; i < max; i++) {
+                s.push(testData[i]);
+                assert.equal(s.peek(), testData[i]);
+            }
+            testStack(testData, s);
+        });
+    });
+
+    describe('#pop', function() {
+        it('should pop the element from the end of the stack (removing it)', function() {
+            var s = new ds.Stack();
+            var t1 = {a:123};
+            var t2 = {b:234};
+            s.push(t1);
+            s.push(t2);
+            assert.equal(s.peek(), t2);
+            assert.equal(s.pop(), t2);
+            assert.equal(s.peek(), t1);
+            assert.equal(s.pop(), t1);
+        });
+    });
+});
+
+var Queue = ds.Queue;
+describe('Queue', function() {
+
+    var testData = [{a: 123}, [3, 2, 1], 1, 2, 3, 'a', 'b', 'c'];
+
+    var testQueue = function(data, queue) {
+        for (var i = 0, max = data.length; i < max; i++) {
+            var curr = queue.deq();
+            assert.equal(curr, data[i]);
+        }
+    };
+
+    describe('#ctor', function() {
+        it('should accept an array to init the data', function() {
+            var q = new ds.Queue(testData);
+            testQueue(testData, q);
+        });
+
+        it('should accept varargs to init the data', function() {
+            var t = testData;
+            var u = [t[0], t[1], t[2]];
+            var q = new ds.Queue(t[0], t[1], t[2]);
+            testQueue(u, q);
+        });
+
+        it('should accept no args', function() {
+            var q = new ds.Queue();
+        });
+    });
+
+    describe('#deq', function() {
+        it('should return and remove the element that is next to be dequeued', function() {
+            var q = new ds.Queue(testData);
+            assert.equal(q.peek(), testData[0]);
+            assert.equal(q.deq(), testData[0]);
+            assert.equal(q.peek(), testData[1]);
+        });
+    });
+
+    describe('#enq', function() {
+        it('should enqueue the element', function() {
+            var q = new ds.Queue();
+            assert.equal(q.peek(), undefined);
+            q.enq(testData[0]);
+            assert.equal(q.peek(), testData[0]);
+        });
+    });
+
+    describe('#peek', function() {
+        it('should return the element that is next to be dequeued', function() {
+            var q = new ds.Queue(testData);
+            assert.equal(q.peek(), testData[0]);
+            q.deq();
+            assert.equal(q.peek(), testData[1]);
         });
     });
 });
