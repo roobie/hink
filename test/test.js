@@ -1,6 +1,42 @@
 var assert = require('assert');
 var ds = require("../datastructures");
 
+var KeyValuePair = ds.KeyValuePair;
+describe('KeyValuePair', function() {
+    var kvp1, kvp2,
+    key1 = "KEY1", value1 = "VALUE1",
+    key2 = "KEY2", value2 = "VALUE2";
+
+    var init = function() {
+        kvp1 = new ds.KeyValuePair(key1, value1);
+        kvp2 = new ds.KeyValuePair({key:key2, value:value2});
+    };
+
+    beforeEach(init);
+
+    describe('#ctor', function() {
+        it('should allow key to be passed as first parameter and value as second', function() {
+            assert.equal(kvp1.key, key1);
+            assert.equal(kvp1.value, value1);
+        });
+        it('should allow key and value to be passed in an object as first parameter', function() {
+            assert.equal(kvp2.key, key2);
+            assert.equal(kvp2.value, value2);
+        });
+    });
+
+    describe('#equal', function() {
+        it('should return true if one kvp is equal by value to another (false otherwise)', function() {
+            assert.equal(kvp1.equal(kvp2), false);
+            assert.equal(kvp1.equal({}), false);
+            assert.equal(kvp1.equal(""), false);
+            assert.equal(kvp1.equal(1), false);
+            assert.equal(kvp1.equal(kvp1), true);
+        });
+    });
+});
+
+
 var Dictionary = ds.Dictionary;
 describe('Dictionary', function() {
     var testKvp1, testKvp2, testKvp3, dict, kvpList

@@ -1,11 +1,6 @@
 (function () {
     'use strict';
 
-    var shift = Array.prototype.shift;
-    var unshift = Array.prototype.unshift;
-    var pop = Array.prototype.pop;
-    var push = Array.prototype.push;
-
     var ds = {};
 
     var isArray = function(a) {
