@@ -162,16 +162,6 @@ describe('Dictionary', function() {
             }
         });
     });
-
-    describe('#pairs', function() {
-        it('should return all pairs in the dictionary', function() {
-            var pairs = dict.pairs().sort();
-            var ref = kvpList.sort();
-            for (var i = 0, max = pairs.length; i < max; i++) {
-                assert.equal(pairs[i].equal(ref[i]), true);
-            }
-        });
-    });
 });
 
 var Tuple = ds.Tuple;

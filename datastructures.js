@@ -3,14 +3,15 @@
 
     var ds = {};
 
-    var isArray = function(a) {
-        if (Object.prototype.toString.call(a) === '[object Array]') {
-            return true;
-        }
-        return false;
+    var isFunction = function(f) {
+        return !!f && typeof(f) === 'function' && Object.prototype.toString.call(f) === '[object Function]';
     };
 
-    var kvp = ds.KeyValuePair = function(key, value) {
+    var isArray = function(a) {
+        return !!a && Object.prototype.toString.call(a) === '[object Array]';
+    };
+
+    ds.KeyValuePair = function(key, value) {
         // =====================================================================
         // Represents a key/value pair.
         // =====================================================================
@@ -24,127 +25,124 @@
             var map = key;
             this.key = map.key;
             this.value = map.value;
-        }
-
-        this.equal = function(other) { // by value
-            if (other instanceof kvp) {
-                return this.key === other.key && this.value === other.value;
-            }
-            return false;
+        } else {
+            throw Error('Invalid parameters.');
         }
     };
 
-    var dict = ds.Dictionary = function() {
+    ds.KeyValuePair.prototype.equal = function(other) { // by value
+        if (other instanceof ds.KeyValuePair) {
+            return this.key === other.key && this.value === other.value;
+        }
+        return false;
+    };
+
+    ds.Dictionary = function() {
         // =====================================================================
         // Represents a dictionary (a map of key/value pairs).
         // =====================================================================
-        var kvpairs = [];
-
-        var find = function(key, callback) {
-            var f = function() {
-                for (var i = 0, max = kvpairs.length; i < max; i++) {
-                    if (kvpairs[i].key === key) {
-                        return [kvpairs[i], i];
-                    }
-                }
-            }
-            var result = f();
-            if (result) {
-                if (callback && typeof callback == 'function') {
-                    callback(result[0], result[1]);
-                } else {
-                    return result[0];
-                }
-            }
-        };
-
-        var getKVPair = function(args) {
-            var kvpair;
-            if (args.length == 1 && args[0] instanceof kvp) {
-                kvpair = args[0];
-            } else if (args[0] && args[1]) {
-                kvpair = new kvp(args[0], args[1]);
-            } else {
-                throw Error('Wrong arguments passed to getKVPair. Pass either one KeyValuePair XOR (one key AND one value)');
-            }
-            return kvpair;
-        };
-
-        this.get = function(key) {
-            var result = find(key);
-            if (result) {
-                return result.value;
-            }
-        };
-
-        this.set = function(key, newValue) {
-            var kvpair = getKVPair(arguments),
-                result = find(kvpair.key);
-            if (result) {
-                result.value = kvpair.value;
-                return true;
-            }
-            return false;
-        };
-
-        this.put = function(key, value) {
-            var kvpair = getKVPair(arguments);
-            if (this.get(kvpair.key)) {
-                this.set(kvpair.key, kvpair.value);
-            } else {
-                this.add(kvpair);
-            }
-        };
-
-        this.add = function (kvpair) {
-            if (kvpair instanceof kvp) {
-                if (!this.get(kvpair.key)) {
-                    kvpairs.push(kvpair);
-                } else {
-                    throw Error("The key: `" + kvpair.key + "` already exists in this Dictionary");
-                }
-            } else {
-                throw TypeError("Parameter is not of type ds.KeyValuePair.")
-            }
-        }
-
-        this.remove = function(key, callback) {
-            find(key, function(kvpair, index) {
-                kvpairs.splice(index, 1);
-                if (callback && typeof callback == 'function') {
-                    callback(kvpair);
-                }
-            });
-        }
-
-        this.count = function () {
-            return kvpairs.length;
-        };
-
-        this.keys = function() {
-            return kvpairs.map(function(e) {
-                return e.key;
-            });
-        };
-
-        this.values = function() {
-            return kvpairs.map(function(e) {
-                return e.value;
-            });
-        };
-
-        this.pairs = function() {
-            return kvpairs.slice(0);
-        };
-
-        this.toString = function() {
-            return JSON.stringify(kvpairs);
-        };
+        this.data = [];
 
         for (var i = 0, max = arguments.length; i < max; i++) {
             var kvpair = arguments[i];
             this.add(kvpair);
         }
+    };
+
+    ds.Dictionary.prototype.find = function(key, callback) {
+        var result = (function() {
+            for (var i = 0, max = this.data.length; i < max; i++) {
+                if (this.data[i].key === key) {
+                    return [this.data[i], i];
+                }
+            }
+        }).call(this); // pass in the right context
+        if (result) {
+            if (isFunction(callback)) {
+                callback.call(this, result[0], result[1]);
+            } else {
+                return result[0];
+            }
+        }
+    };
+
+    ds.Dictionary.prototype.getKVPair = function(args) {
+        var kvpair;
+        if (args.length == 1 && args[0] instanceof ds.KeyValuePair) {
+            kvpair = args[0];
+        } else if (args[0] && args[1]) {
+            kvpair = new ds.KeyValuePair(args[0], args[1]);
+        } else {
+            throw Error('Wrong arguments passed to getKVPair. Pass either one KeyValuePair XOR (one key AND one value)');
+        }
+        return kvpair;
+    };
+
+    ds.Dictionary.prototype.get = function(key) {
+        var result = this.find(key);
+        if (result) {
+            return result.value;
+        }
+    };
+
+    ds.Dictionary.prototype.set = function(key, newValue) {
+        var kvpair = this.getKVPair(arguments),
+        result = this.find(kvpair.key);
+        if (result) {
+            result.value = kvpair.value;
+            return true;
+        }
+        return false;
+    };
+
+    ds.Dictionary.prototype.put = function(key, value) {
+        var kvpair = this.getKVPair(arguments);
+        if (this.get(kvpair.key)) {
+            this.set(kvpair.key, kvpair.value);
+        } else {
+            this.add(kvpair);
+        }
+    };
+
+    ds.Dictionary.prototype.add = function (kvpair) {
+        if (kvpair instanceof ds.KeyValuePair) {
+            if (!this.get(kvpair.key)) {
+                this.data.push(kvpair);
+            } else {
+                throw Error("The key: `" + kvpair.key + "` already exists in this Dictionary");
+            }
+        } else {
+            throw TypeError("Parameter is not of type ds.KeyValuePair.")
+        }
+    }
+
+    ds.Dictionary.prototype.remove = function(key, callback) {
+        this.find(key, function(kvpair, index) {
+            this.data.splice(index, 1);
+            if (isFunction(callback)) {
+                callback.call(this, kvpair);
+            }
+        });
+    }
+
+    ds.Dictionary.prototype.count = function () {
+        return this.data.length;
+    };
+
+    ds.Dictionary.prototype.keys = function() {
+        return this.data.map(function(e) {
+            return e.key;
+        });
+    };
+
+    ds.Dictionary.prototype.values = function() {
+        return this.data.map(function(e) {
+            return e.value;
+        });
+    };
+
+    ds.Dictionary.prototype.toString = function() {
+        return JSON.stringify(this.data);
     };
 
     var atoa = function(args) {
