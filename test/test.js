@@ -53,7 +53,7 @@ describe('Dictionary', function() {
     beforeEach(init);
 
     describe('#ctor', function() {
-        it('should not accept object that are not instances of KeyValuePair', function() {
+        it('should not accept object that are not instances of KeyValuePair or objects that resemble KeyValuePairs', function() {
             assert.throws(function() {
                 var asd = new Dictionary("asd");
             });
@@ -64,6 +64,20 @@ describe('Dictionary', function() {
                 var asd = new Dictionary(123, "asd");
             });
             assert.equal(dict.count(), kvpList.length);
+        });
+        it('should accept both KeyValuePairs and object with a key and value property', function() {
+            var d;
+            d = new ds.Dictionary({key: testKvp1.key, value: testKvp1.value});
+            d = new ds.Dictionary(testKvp1);
+        });
+        it('should accept an array of both KeyValuePairs and objects with a key and value property', function() {
+            var d;
+            d = new ds.Dictionary({key: testKvp1.key, value: testKvp1.value}, {key: testKvp2.key, value: testKvp2.value});
+            assert.equal(d.count(), 2)
+            d = new ds.Dictionary(testKvp1, testKvp2);
+            assert.equal(d.count(), 2)
+            d = new ds.Dictionary({key: testKvp1.key, value: testKvp1.value}, testKvp2);
+            assert.equal(d.count(), 2)
         });
     });
 
@@ -176,14 +190,7 @@ describe('Tuple', function() {
 
     describe('#limit', function() {
         it('should return the limit of the tuple', function() {
-            assert.equal(tupl.limit(), limit);
-        });
-    });
-
-    describe('#count', function() {
-        it('should return the current count of items in the tuple', function() {
-            assert.equal(tupl.count(), refList.length);
-            assert.equal(new ds.Tuple(5, i1).count(), 1);
+            assert.equal(tupl.limit, limit);
         });
     });
 
@@ -191,7 +198,7 @@ describe('Tuple', function() {
         it('should accept the limit as first arg, and objects to add to the data as the rest.', function() {
             var lim = 5;
             var t = new ds.Tuple(lim, 1, 2, 3, 4, 5);
-            assert.equal(t.count(), lim);
+            assert.equal(t.data.length, lim);
         });
 
         it('should accept the limit as first arg, and an array as second with the data', function() {
@@ -204,7 +211,7 @@ describe('Tuple', function() {
                 return tmp;
             }());
             var t = new ds.Tuple(lim, data);
-            assert.equal(t.count(), data.length);
+            assert.equal(t.data.length, data.length);
         });
 
         it('should throw if first arg isn\'t a number', function() {
@@ -341,6 +348,20 @@ describe('Stack', function() {
             assert.equal(s.pop(), t1);
         });
     });
+
+    describe('#deplete', function() {
+        it('should call the callback with each of the items in the Queue, thus depleting it', function() {
+            var s = new ds.Stack(testData);
+            var counter = testData.length - 1;
+            assert.equal(s.data.length, testData.length);
+            s.deplete(function(element) {
+                assert.equal(s, this);
+                assert.equal(testData[counter], element);
+                counter--;
+            });
+            assert.equal(s.data.length, 0);
+        });
+    });
 });
 
 var Queue = ds.Queue;
@@ -397,6 +418,20 @@ describe('Queue', function() {
             assert.equal(q.peek(), testData[0]);
             q.deq();
             assert.equal(q.peek(), testData[1]);
+        });
+    });
+
+    describe('#deplete', function() {
+        it('should call the callback with each of the items in the Queue, thus depleting it', function() {
+            var q = new ds.Queue(testData);
+            var counter = 0;
+            assert.equal(q.data.length, testData.length);
+            q.deplete(function(element) {
+                assert.equal(q, this);
+                assert.equal(testData[counter], element);
+                counter++;
+            });
+            assert.equal(q.data.length, 0);
         });
     });
 });

@@ -11,23 +11,72 @@
         return !!a && Object.prototype.toString.call(a) === '[object Array]';
     };
 
+    var isArguments = function(a) {
+        return !!a && Object.prototype.toString.call(a) === '[object Arguments]';
+    };
+
+    var getKeyValuePair = function(args) {
+        if (isArguments(args)) {
+            if (args[0] && args[1]) {
+                return new ds.KeyValuePair(args[0], args[1]);
+            }
+        }
+        if (isArguments(args) || isArray(args)) {
+            if (args.length == 1 && args[0] instanceof ds.KeyValuePair) {
+                return args[0];
+            }
+            if (!!args[0] && args[0].key && args[0].value) {
+                return new ds.KeyValuePair(args[0].key, args[0].value);
+            }
+        }
+
+        if (!!args && args.key && args.value) {
+            return new ds.KeyValuePair(args.key, args.value);
+        }
+
+        throw Error('Wrong arguments passed to getKeyValuePair. Pass either one KeyValuePair XOR (one key AND one value) XOR {key, value}. Data passed: ' + JSON.stringify(args));
+    };
+
+    var atoa = function(args) {
+        var data = [];
+        if (args.length > 1) {
+            data = Array.prototype.slice.call(args, 0);
+        } else if (args.length == 1) {
+            if (isArray(args[0])) {
+                data = args[0].slice(0);
+            } else {
+                data = [args[0]];
+            }
+        }
+        return data;
+    };
+
+    var deplete = function(collection, fnName, forEachCallback) {
+        var current;
+        var getCurrent = function() {
+            return collection[fnName]();
+        };
+        do {
+            current = getCurrent();
+            forEachCallback.call(collection, current);
+        } while (current);
+    };
+
     ds.KeyValuePair = function(key, value) {
         // =====================================================================
         // Represents a key/value pair.
         // =====================================================================
+        var temp = {};
         if (key && value) {
-            // user supplied a key and value
-            this.key = key;
-            this.value = value;
+            temp.key = key;
+            temp.value = value;
         } else if (key && !value) {
-            // user supplied an object as first and only arg
-            // which should contain the key and value.
-            var map = key;
-            this.key = map.key;
-            this.value = map.value;
+            temp = key;
         } else {
-            throw Error('Invalid parameters.');
+            throw Error("ds.KeyValuePair :: ctor -> Invalid arguments.");
         }
+        this.key = temp.key;
+        this.value = temp.value;
     };
 
     ds.KeyValuePair.prototype.equal = function(other) { // by value
@@ -45,7 +94,7 @@
 
         for (var i = 0, max = arguments.length; i < max; i++) {
             var kvpair = arguments[i];
-            this.add(kvpair);
+            this.add(getKeyValuePair(kvpair));
         }
     };
 
@@ -66,18 +115,6 @@
         }
     };
 
-    ds.Dictionary.prototype.getKVPair = function(args) {
-        var kvpair;
-        if (args.length == 1 && args[0] instanceof ds.KeyValuePair) {
-            kvpair = args[0];
-        } else if (args[0] && args[1]) {
-            kvpair = new ds.KeyValuePair(args[0], args[1]);
-        } else {
-            throw Error('Wrong arguments passed to getKVPair. Pass either one KeyValuePair XOR (one key AND one value)');
-        }
-        return kvpair;
-    };
-
     ds.Dictionary.prototype.get = function(key) {
         var result = this.find(key);
         if (result) {
@@ -86,7 +123,7 @@
     };
 
     ds.Dictionary.prototype.set = function(key, newValue) {
-        var kvpair = this.getKVPair(arguments),
+        var kvpair = getKeyValuePair(arguments),
         result = this.find(kvpair.key);
         if (result) {
             result.value = kvpair.value;
@@ -96,7 +133,7 @@
     };
 
     ds.Dictionary.prototype.put = function(key, value) {
-        var kvpair = this.getKVPair(arguments);
+        var kvpair = getKeyValuePair(arguments);
         if (this.get(kvpair.key)) {
             this.set(kvpair.key, kvpair.value);
         } else {
@@ -145,21 +182,7 @@
         return JSON.stringify(this.data);
     };
 
-    var atoa = function(args) {
-        var data = [];
-        if (args.length > 1) {
-            data = Array.prototype.slice.call(args, 0);
-        } else if (args.length == 1) {
-            if (isArray(args[0])) {
-                data = args[0].slice(0);
-            } else {
-                data = [args[0]];
-            }
-        }
-        return data;
-    }
-
-    var tuple = ds.Tuple = function(limit /* &rest*/) {
+    ds.Tuple = function(limit /* &rest*/) {
         // =====================================================================
         // Represents a fixed size array.
         // =====================================================================
@@ -171,39 +194,8 @@
             throw Error("Limit must be a number above 0.");
         }
 
-        var data = [];
-
-        this.add = function(element) {
-            if (data.length < limit) {
-                data.push(element);
-            } else {
-                throw Error("This Tuple has reached it's limit [" + limit + "].");
-            }
-        };
-
-        this.get = function(index) {
-            if (index < limit) {
-                return data[index];
-            } else {
-                throw Error("Index is out of bounds: " + index + " > " + limit + ".");
-            }
-        };
-
-        this.put = function(index, element) {
-            if (index < limit) {
-                data[index] = element;
-            } else {
-                throw Error("Index is out of bounds: " + index + " > " + limit + ".");
-            }
-        };
-
-        this.limit = function() {
-            return limit;
-        };
-
-        this.count = function() {
-            return data.length;
-        };
+        this.limit = limit;
+        this.data = [];
 
         Array.prototype.shift.call(arguments);
         var d = atoa(arguments);
@@ -211,39 +203,75 @@
         if (d.length > limit) {
             throw Error(["Too many objects! Number supplied: [", d.length, "], limit: [", limit, "]."].join(''));
         }
-        data = d;
+        this.data = d;
     };
 
-    var stack = ds.Stack = function() {
-        var data = atoa(arguments);
-
-        this.push = function(element) {
-            data.push(element);
-        };
-
-        this.pop = function() {
-            return data.pop();
-        };
-
-        this.peek = function() {
-            return data[data.length - 1];
-        };
+    ds.Tuple.prototype.add = function(element) {
+        if (this.data.length < this.limit) {
+            this.data.push(element);
+        } else {
+            throw Error("This Tuple has reached it's limit [" + this.limit + "].");
+        }
     };
 
-    var queue = ds.Queue = function() {
-        var data = atoa(arguments);
+    var indexOutOfBoundsError = function(index, limit) {
+        return Error("Index is out of bounds: " + index + " > " + limit + ".");
+    };
 
-        this.enq = function(element) {
-            data.push(element);
-        };
+    ds.Tuple.prototype.get = function(index) {
+        if (index < this.limit) {
+            return this.data[index];
+        } else {
+            throw indexOutOfBoundsError(index, this.limit);
+        }
+    };
 
-        this.deq = function() {
-            return data.shift();
-        };
+    ds.Tuple.prototype.put = function(index, element) {
+        if (index < this.limit) {
+            this.data[index] = element;
+        } else {
+            throw indexOutOfBoundsError(index, this.limit);
+        }
+    };
 
-        this.peek = function() {
-            return data[0];
-        };
+    ds.Stack = function() {
+        this.data = atoa(arguments);
+    };
+
+    ds.Stack.prototype.push = function(element) {
+        this.data.push(element);
+    };
+
+    ds.Stack.prototype.pop = function() {
+        return this.data.pop();
+    };
+
+    ds.Stack.prototype.peek = function() {
+        return this.data[this.data.length - 1];
+    };
+
+    ds.Stack.prototype.deplete = function(callback) {
+        deplete(this, 'pop', callback);
+    };
+
+    ds.Queue = function() {
+        this. data = atoa(arguments);
+    };
+
+    ds.Queue.prototype.enq = function(element) {
+        this.data.push(element);
+    };
+
+    ds.Queue.prototype.deq = function() {
+        return this.data.shift();
+    };
+
+    ds.Queue.prototype.peek = function() {
+        return this.data[0];
+    };
+
+    ds.Queue.prototype.deplete = function(callback) {
+        deplete(this, 'deq', callback);
     };
 
     // =*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=
