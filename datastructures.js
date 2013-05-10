@@ -21,6 +21,7 @@
                 return new ds.KeyValuePair(args[0], args[1]);
             }
         }
+
         if (isArguments(args) || isArray(args)) {
             if (args.length == 1 && args[0] instanceof ds.KeyValuePair) {
                 return args[0];
@@ -180,6 +181,12 @@
 
     ds.Dictionary.prototype.toString = function() {
         return JSON.stringify(this.data);
+    };
+
+    ds.Dictionary.prototype.each = function(callback) {
+        for (var i = 0, max = this.data.length; i < max; i++) {
+            callback.call(this, this.data[i]);
+        }
     };
 
     ds.Tuple = function(limit /* &rest*/) {
