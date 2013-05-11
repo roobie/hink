@@ -63,7 +63,7 @@ describe('Dictionary', function() {
             assert.throws(function() {
                 var asd = new Dictionary(123, "asd");
             });
-            assert.equal(dict.count(), kvpList.length);
+            assert.equal(dict.count, kvpList.length);
         });
         it('should accept both KeyValuePairs and object with a key and value property', function() {
             var d;
@@ -73,11 +73,11 @@ describe('Dictionary', function() {
         it('should accept an array of both KeyValuePairs and objects with a key and value property', function() {
             var d;
             d = new ds.Dictionary({key: testKvp1.key, value: testKvp1.value}, {key: testKvp2.key, value: testKvp2.value});
-            assert.equal(d.count(), 2)
+            assert.equal(d.count, 2)
             d = new ds.Dictionary(testKvp1, testKvp2);
-            assert.equal(d.count(), 2)
+            assert.equal(d.count, 2)
             d = new ds.Dictionary({key: testKvp1.key, value: testKvp1.value}, testKvp2);
-            assert.equal(d.count(), 2)
+            assert.equal(d.count, 2)
         });
     });
 
@@ -149,13 +149,13 @@ describe('Dictionary', function() {
             var kvp2 = new ds.KeyValuePair("NEWKEY2", "NEWVAL");
             var ref = [kvp1, kvp2];
             var dict = new ds.Dictionary(kvp1, kvp2);
-            assert.equal(dict.count(), ref.length);
+            assert.equal(dict.count, ref.length);
         });
     });
 
     describe('#keys', function() {
         it('should return all keys in the dictionary', function() {
-            var keys = dict.keys();
+            var keys = dict.keys;
             for (var i = 0, max = keys.length; i < max; i++) {
                 assert.notEqual(keys.indexOf(kvpList[i].key), -1);
             }
@@ -167,7 +167,7 @@ describe('Dictionary', function() {
 
     describe('#values', function() {
         it('should return all values in the dictionary', function() {
-            var values = dict.values();
+            var values = dict.values;
             for (var i = 0, max = values.length; i < max; i++) {
                 assert.notEqual(values.indexOf(kvpList[i].value), -1);
             }
@@ -320,7 +320,7 @@ describe('Stack', function() {
     describe('#peek', function() {
         it('should return the element that is first to be popped', function() {
             var s = new ds.Stack(testData);
-            assert.equal(testData[testData.length - 1], s.peek());
+            assert.equal(testData[testData.length - 1], s.peek);
         });
     });
 
@@ -329,7 +329,7 @@ describe('Stack', function() {
             var s = new ds.Stack();
             for(var i = 0, max = testData.length; i < max; i++) {
                 s.push(testData[i]);
-                assert.equal(s.peek(), testData[i]);
+                assert.equal(s.peek, testData[i]);
             }
             testStack(testData, s);
         });
@@ -342,9 +342,9 @@ describe('Stack', function() {
             var t2 = {b:234};
             s.push(t1);
             s.push(t2);
-            assert.equal(s.peek(), t2);
+            assert.equal(s.peek, t2);
             assert.equal(s.pop(), t2);
-            assert.equal(s.peek(), t1);
+            assert.equal(s.peek, t1);
             assert.equal(s.pop(), t1);
         });
     });
@@ -397,27 +397,27 @@ describe('Queue', function() {
     describe('#deq', function() {
         it('should return and remove the element that is next to be dequeued', function() {
             var q = new ds.Queue(testData);
-            assert.equal(q.peek(), testData[0]);
+            assert.equal(q.peek, testData[0]);
             assert.equal(q.deq(), testData[0]);
-            assert.equal(q.peek(), testData[1]);
+            assert.equal(q.peek, testData[1]);
         });
     });
 
     describe('#enq', function() {
         it('should enqueue the element', function() {
             var q = new ds.Queue();
-            assert.equal(q.peek(), undefined);
+            assert.equal(q.peek, undefined);
             q.enq(testData[0]);
-            assert.equal(q.peek(), testData[0]);
+            assert.equal(q.peek, testData[0]);
         });
     });
 
     describe('#peek', function() {
         it('should return the element that is next to be dequeued', function() {
             var q = new ds.Queue(testData);
-            assert.equal(q.peek(), testData[0]);
+            assert.equal(q.peek, testData[0]);
             q.deq();
-            assert.equal(q.peek(), testData[1]);
+            assert.equal(q.peek, testData[1]);
         });
     });
 
