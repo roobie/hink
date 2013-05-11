@@ -309,6 +309,11 @@
 
     ds.Queue = function() {
         this. data = atoa(arguments);
+
+        // var q = ds.Queue(args)
+        if (!(this instanceof ds.Queue)) {
+            return new ds.Queue(arguments.slice(0));
+        }
     };
 
     ds.Queue.prototype = Object.create(null, {
