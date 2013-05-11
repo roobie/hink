@@ -60,7 +60,7 @@
         }
 
         do {
-            current = depleteFn();
+            current = depleteFn.call(this);
             forEachCallback.call(this, current);
         } while (current);
     };
@@ -82,6 +82,11 @@
 
         this.key = temp.key;
         this.value = temp.value;
+
+        // enable new-less
+        if (!(this instanceof ds.KeyValuePair)) {
+            return new ds.KeyValuePair(key, value);
+        }
     };
 
     ds.KeyValuePair.prototype = Object.create(null, {
@@ -107,6 +112,15 @@
         for (var i = 0, max = arguments.length; i < max; i++) {
             var kvpair = arguments[i];
             this.add(getKeyValuePair(kvpair));
+        }
+
+        // enable new-less
+        if (!(this instanceof ds.Dictionary)) {
+            console.log(1);
+            var a = Object.create(ds.Dictionary.prototype);
+            console.log(2);
+            return ds.Dictionary.apply(a, arguments);
+            console.log(3);
         }
     };
 
@@ -236,6 +250,11 @@
         }
 
         this.data = d;
+
+        // enable new-less
+        if (!(this instanceof ds.Tuple)) {
+            return new ds.Tuple(arguments.slice(0));
+        }
     };
 
     var indexOutOfBoundsError = function(index, limit) {
@@ -279,6 +298,11 @@
 
     ds.Stack = function() {
         this.data = atoa(arguments);
+
+        // enable new-less
+        if (!(this instanceof ds.Stack)) {
+            return new ds.Stack(arguments.slice(0));
+        }
     };
 
     ds.Stack.prototype = Object.create(null, {
@@ -299,10 +323,7 @@
         },
         deplete: {
             value: function(callback) {
-                var self = this;
-                deplete.call(this, function() {
-                    return self.pop();
-                }, callback);
+                deplete.call(this, this.pop, callback);
             }
         }
     });
@@ -310,7 +331,7 @@
     ds.Queue = function() {
         this. data = atoa(arguments);
 
-        // var q = ds.Queue(args)
+        // enable new-less
         if (!(this instanceof ds.Queue)) {
             return new ds.Queue(arguments.slice(0));
         }
@@ -334,10 +355,7 @@
         },
         deplete: {
             value: function(callback) {
-                var self = this;
-                deplete.call(this, function() {
-                    return self.deq();
-                }, callback);
+                deplete.call(this, this.deq, callback);
             }
         }
     });
