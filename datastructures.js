@@ -116,11 +116,9 @@
 
         // enable new-less
         if (!(this instanceof ds.Dictionary)) {
-            console.log(1);
-            var a = Object.create(ds.Dictionary.prototype);
-            console.log(2);
-            return ds.Dictionary.apply(a, arguments);
-            console.log(3);
+            var dictionary = Object.create(ds.Dictionary.prototype);
+            ds.Dictionary.apply(dictionary, arguments);
+            return dictionary;
         }
     };
 
@@ -242,6 +240,8 @@
         this.limit = limit;
         this.data = [];
 
+        var origArgs = Array.prototype.slice.call(arguments, 0);
+
         Array.prototype.shift.call(arguments);
         var d = atoa(arguments);
 
@@ -253,7 +253,9 @@
 
         // enable new-less
         if (!(this instanceof ds.Tuple)) {
-            return new ds.Tuple(arguments.slice(0));
+            var tuple = Object.create(ds.Tuple.prototype);
+            ds.Tuple.apply(tuple, origArgs);
+            return tuple;
         }
     };
 
@@ -301,7 +303,9 @@
 
         // enable new-less
         if (!(this instanceof ds.Stack)) {
-            return new ds.Stack(arguments.slice(0));
+            var stack = Object.create(ds.Stack.prototype);
+            ds.Stack.apply(stack, arguments);
+            return stack;
         }
     };
 
@@ -333,7 +337,9 @@
 
         // enable new-less
         if (!(this instanceof ds.Queue)) {
-            return new ds.Queue(arguments.slice(0));
+            var queue = Object.create(ds.Queue.prototype);
+            ds.Queue.apply(queue, arguments);
+            return queue;
         }
     };
 
