@@ -72,6 +72,10 @@
         }
     };
 
+    indexOutOfBoundsError = function(index, limit) {
+        return new Error("Index is out of bounds: " + index + " > " + limit + ".");
+    };
+
     ds.KeyValuePair = function(key, value) {
         // =====================================================================
         // Represents a key/value pair.
@@ -273,10 +277,6 @@
             ds.Tuple.apply(tuple, origArgs);
             return tuple;
         }
-    };
-
-    indexOutOfBoundsError = function(index, limit) {
-        return new Error("Index is out of bounds: " + index + " > " + limit + ".");
     };
 
     ds.Tuple.prototype = Object.create(null, {
