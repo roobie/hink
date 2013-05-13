@@ -7,7 +7,8 @@
         isArguments,
         getKeyValuePair,
         atoa,
-        deplete;
+        deplete,
+        indexOutOfBoundsError;
 
     isFunction = function(f) {
         return !!f && typeof f === 'function' && Object.prototype.toString.call(f) === '[object Function]';
@@ -274,7 +275,7 @@
         }
     };
 
-    var indexOutOfBoundsError = function(index, limit) {
+    indexOutOfBoundsError = function(index, limit) {
         return new Error("Index is out of bounds: " + index + " > " + limit + ".");
     };
 
@@ -297,9 +298,8 @@
             value: function(index) {
                 if (index < this.limit) {
                     return this.data[index];
-                } else {
-                    throw indexOutOfBoundsError(index, this.limit);
                 }
+                throw indexOutOfBoundsError(index, this.limit);
             }
         },
         put: {
