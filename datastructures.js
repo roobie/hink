@@ -1,21 +1,27 @@
 (function () {
     'use strict';
 
-    var ds = {};
+    var ds = {},
+        isFunction,
+        isArray,
+        isArguments,
+        getKeyValuePair,
+        atoa,
+        deplete;
 
-    var isFunction = function(f) {
+    isFunction = function(f) {
         return !!f && typeof f === 'function' && Object.prototype.toString.call(f) === '[object Function]';
     };
 
-    var isArray = function(a) {
+    isArray = function(a) {
         return !!a && Object.prototype.toString.call(a) === '[object Array]';
     };
 
-    var isArguments = function(a) {
+    isArguments = function(a) {
         return !!a && Object.prototype.toString.call(a) === '[object Arguments]';
     };
 
-    var getKeyValuePair = function(args) {
+    getKeyValuePair = function(args) {
         if (isArguments(args)) {
             if (args[0] && args[1]) {
                 return new ds.KeyValuePair(args[0], args[1]);
@@ -38,7 +44,7 @@
         throw new Error('Wrong arguments passed to getKeyValuePair. Pass either one KeyValuePair XOR (one key AND one value) XOR {key, value}. Data passed: ' + JSON.stringify(args));
     };
 
-    var atoa = function(args) {
+    atoa = function(args) {
         var data = [];
         if (args.length > 1) {
             data = Array.prototype.slice.call(args, 0);
@@ -52,7 +58,7 @@
         return data;
     };
 
-    var deplete = function(depleteFn, forEachCallback) {
+    deplete = function(depleteFn, forEachCallback) {
         var current = depleteFn.call(this);
 
         if (!isFunction(forEachCallback)) {
@@ -110,7 +116,7 @@
         var i, max, kvpair, dictionary;
         this.data = [];
 
-        for (i = 0, max = arguments.length; i < max; i++) {
+        for (i = 0, max = arguments.length; i < max; i += 1) {
             kvpair = arguments[i];
             this.add(getKeyValuePair(kvpair));
         }
@@ -129,7 +135,7 @@
                 var result, localFind;
                 localFind = function() {
                     var i, max;
-                    for (i = 0, max = this.data.length; i < max; i++) {
+                    for (i = 0, max = this.data.length; i < max; i += 1) {
                         if (this.data[i].key === key) {
                             return [this.data[i], i];
                         }
@@ -154,7 +160,8 @@
             }
         },
         set: {
-            value: function(key, newValue) {
+            value: function() {
+                /// Accepts key and value XOR kevaluepair
                 var kvpair = getKeyValuePair(arguments),
                     result = this.find(kvpair.key);
                 if (result) {
@@ -164,7 +171,8 @@
             }
         },
         put: {
-            value: function(key, value) {
+            value: function() {
+                /// Accepts key and value XOR kevaluepair
                 var kvpair = getKeyValuePair(arguments);
                 if (this.get(kvpair.key)) {
                     this.set(kvpair.key, kvpair.value);
@@ -213,7 +221,7 @@
         each: {
             value: function(callback) {
                 var i, max;
-                for (i = 0, max = this.data.length; i < max; i++) {
+                for (i = 0, max = this.data.length; i < max; i += 1) {
                     callback.call(this, this.data[i]);
                 }
             }
@@ -234,6 +242,8 @@
         // =====================================================================
         // Represents a fixed size array.
         // =====================================================================
+        var origArgs, d, tuple;
+
         if (!limit) {
             throw new Error("Invalid arguments");
         }
@@ -245,10 +255,10 @@
         this.limit = limit;
         this.data = [];
 
-        var origArgs = Array.prototype.slice.call(arguments, 0);
+        origArgs = Array.prototype.slice.call(arguments, 0);
 
         Array.prototype.shift.call(arguments);
-        var d = atoa(arguments);
+        d = atoa(arguments);
 
         if (d.length > limit) {
             throw new Error(["Too many objects! Number supplied: [", d.length, "], limit: [", limit, "]."].join(''));
@@ -258,7 +268,7 @@
 
         // enable new-less
         if (!(this instanceof ds.Tuple)) {
-            var tuple = Object.create(ds.Tuple.prototype);
+            tuple = Object.create(ds.Tuple.prototype);
             ds.Tuple.apply(tuple, origArgs);
             return tuple;
         }
