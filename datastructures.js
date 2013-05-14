@@ -8,6 +8,8 @@
         getKeyValuePair,
         atoa,
         deplete,
+        invalidArgumentsError,
+        keyAlreadyExistsError,
         indexOutOfBoundsError;
 
     isFunction = function(f) {
@@ -67,13 +69,32 @@
         }
 
         while (current) {
-            forEachCallback.call(this, current);
+            if (!!current) {
+                forEachCallback.call(this, current);
+            }
             current = depleteFn.call(this);
         }
     };
 
+    invalidArgumentsError = function(expected) {
+        var sb = ["Invalid arguments. Expected: "];
+        if (isArray(expected)) {
+            sb = sb.concat(expected.map(function(e) {
+                return e.toString() + ", ";
+            }));
+        } else {
+            sb.push(expected.toString());
+        }
+
+        return new Error(sb.join(''));
+    };
+
+    keyAlreadyExistsError = function(key) {
+        return new Error("The key: `" + key + "` already exists in this Dictionary");
+    }
+
     indexOutOfBoundsError = function(index, limit) {
-        return new Error("Index is out of bounds: " + index + " > " + limit + ".");
+        return new RangeError("Index is out of bounds: " + index + " > " + limit + ".");
     };
 
     ds.KeyValuePair = function(key, value) {
@@ -88,7 +109,7 @@
         } else if (key && !value) {
             temp = key;
         } else {
-            throw new Error("ds.KeyValuePair :: ctor -> Invalid arguments.");
+            throw invalidArgumentsError("`key` and `value` XOR {key: `key`, value: `value`}");
         }
 
         this.key = temp.key;
@@ -192,7 +213,7 @@
                     if (!this.get(kvpair.key)) {
                         this.data.push(kvpair);
                     } else {
-                        throw new Error("The key: `" + kvpair.key + "` already exists in this Dictionary");
+                        throw keyAlreadyExistsError(kvpair.key);
                     }
                 } else {
                     throw new TypeError("Parameter is not of type ds.KeyValuePair.");
@@ -249,12 +270,8 @@
         // =====================================================================
         var origArgs, d, tuple;
 
-        if (!limit) {
-            throw new Error("Invalid arguments");
-        }
-
-        if (typeof limit !== 'number' || limit < 1) {
-            throw new Error("Limit must be a number above 0.");
+        if (!limit || typeof limit !== 'number' || limit < 1) {
+            throw invalidArgumentsError("limit of type number gt 0");
         }
 
         this.limit = limit;
