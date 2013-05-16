@@ -1,15 +1,15 @@
 var assert = require('assert');
-var ds = require("../datastructures");
+var hink = require("../hink");
 
-var KeyValuePair = ds.KeyValuePair;
+var KeyValuePair = hink.KeyValuePair;
 describe('KeyValuePair', function() {
     var kvp1, kvp2,
     key1 = "KEY1", value1 = "VALUE1",
     key2 = "KEY2", value2 = "VALUE2";
 
     var init = function() {
-        kvp1 = new ds.KeyValuePair(key1, value1);
-        kvp2 = new ds.KeyValuePair({key:key2, value:value2});
+        kvp1 = new hink.KeyValuePair(key1, value1);
+        kvp2 = new hink.KeyValuePair({key:key2, value:value2});
     };
 
     beforeEach(init);
@@ -38,16 +38,16 @@ describe('KeyValuePair', function() {
 });
 
 
-var Dictionary = ds.Dictionary;
+var Dictionary = hink.Dictionary;
 describe('Dictionary', function() {
     var testKvp1, testKvp2, testKvp3, dict, kvpList
 
     var init = function() {
-        testKvp1 = new ds.KeyValuePair("testKey1", "testValue1");
-        testKvp2 = new ds.KeyValuePair("testKey2", "testValue2");
-        testKvp3 = new ds.KeyValuePair("testKey3", "testValue3");
+        testKvp1 = new hink.KeyValuePair("testKey1", "testValue1");
+        testKvp2 = new hink.KeyValuePair("testKey2", "testValue2");
+        testKvp3 = new hink.KeyValuePair("testKey3", "testValue3");
         kvpList = [testKvp1, testKvp2, testKvp3];
-        dict = new ds.Dictionary(testKvp1, testKvp2, testKvp3);
+        dict = new hink.Dictionary(testKvp1, testKvp2, testKvp3);
     }
 
     beforeEach(init);
@@ -67,16 +67,16 @@ describe('Dictionary', function() {
         });
         it('should accept both KeyValuePairs and object with a key and value property', function() {
             var d;
-            d = new ds.Dictionary({key: testKvp1.key, value: testKvp1.value});
-            d = new ds.Dictionary(testKvp1);
+            d = new hink.Dictionary({key: testKvp1.key, value: testKvp1.value});
+            d = new hink.Dictionary(testKvp1);
         });
         it('should accept an array of both KeyValuePairs and objects with a key and value property', function() {
             var d;
-            d = new ds.Dictionary({key: testKvp1.key, value: testKvp1.value}, {key: testKvp2.key, value: testKvp2.value});
+            d = new hink.Dictionary({key: testKvp1.key, value: testKvp1.value}, {key: testKvp2.key, value: testKvp2.value});
             assert.equal(d.count, 2)
-            d = new ds.Dictionary(testKvp1, testKvp2);
+            d = new hink.Dictionary(testKvp1, testKvp2);
             assert.equal(d.count, 2)
-            d = new ds.Dictionary({key: testKvp1.key, value: testKvp1.value}, testKvp2);
+            d = new hink.Dictionary({key: testKvp1.key, value: testKvp1.value}, testKvp2);
             assert.equal(d.count, 2)
         });
     });
@@ -105,7 +105,7 @@ describe('Dictionary', function() {
     describe('#put', function() {
         it('should set the value of the kvp to the new value if it exists', function() {
             var nv = "ASDASDASD";
-            var tkvp1 = new ds.KeyValuePair(testKvp1.key, nv);
+            var tkvp1 = new hink.KeyValuePair(testKvp1.key, nv);
             dict.put(tkvp1.key, tkvp1.value);
             assert.equal(dict.get(testKvp1.key), nv);
         });
@@ -113,7 +113,7 @@ describe('Dictionary', function() {
         it('Otherwise add the kvp', function() {
             var nk = "KEYASDASDASD";
             var nv = "VALUEASDASDASD";
-            var tkvp1 = new ds.KeyValuePair(nk, nv);
+            var tkvp1 = new hink.KeyValuePair(nk, nv);
             dict.put(tkvp1.key, tkvp1.value);
             assert.equal(dict.get(tkvp1.key), nv);
         });
@@ -128,7 +128,7 @@ describe('Dictionary', function() {
 
     describe('#add', function() {
         it('should add the key value pair', function() {
-            var nkvp = new ds.KeyValuePair("NEWKEY", "NEWVAL");
+            var nkvp = new hink.KeyValuePair("NEWKEY", "NEWVAL");
             dict.add(nkvp);
             assert.equal(dict.get(nkvp.key), nkvp.value);
         });
@@ -145,10 +145,10 @@ describe('Dictionary', function() {
 
     describe('#count', function() {
         it('should return the length of the dictionary', function() {
-            var kvp1 = new ds.KeyValuePair("NEWKEY1", "NEWVAL");
-            var kvp2 = new ds.KeyValuePair("NEWKEY2", "NEWVAL");
+            var kvp1 = new hink.KeyValuePair("NEWKEY1", "NEWVAL");
+            var kvp2 = new hink.KeyValuePair("NEWKEY2", "NEWVAL");
             var ref = [kvp1, kvp2];
-            var dict = new ds.Dictionary(kvp1, kvp2);
+            var dict = new hink.Dictionary(kvp1, kvp2);
             assert.equal(dict.count, ref.length);
         });
     });
@@ -178,12 +178,12 @@ describe('Dictionary', function() {
     });
 });
 
-var Tuple = ds.Tuple;
+var Tuple = hink.Tuple;
 describe('Tuple', function() {
     var tupl, limit = 2, i1 = {a:123}, i2 = {b:234}, refList = [i1, i2];
 
     var init = function() {
-        tupl = new ds.Tuple(limit, refList);
+        tupl = new hink.Tuple(limit, refList);
     }
 
     beforeEach(init);
@@ -197,7 +197,7 @@ describe('Tuple', function() {
     describe('#ctor', function() {
         it('should accept the limit as first arg, and objects to add to the data as the rest.', function() {
             var lim = 5;
-            var t = new ds.Tuple(lim, 1, 2, 3, 4, 5);
+            var t = new hink.Tuple(lim, 1, 2, 3, 4, 5);
             assert.equal(t.data.length, lim);
         });
 
@@ -210,38 +210,38 @@ describe('Tuple', function() {
                 }
                 return tmp;
             }());
-            var t = new ds.Tuple(lim, data);
+            var t = new hink.Tuple(lim, data);
             assert.equal(t.data.length, data.length);
         });
 
         it('should throw if first arg isn\'t a number', function() {
             assert.throws(function() {
-                new ds.Tuple("")
+                new hink.Tuple("")
             });
 
             assert.throws(function() {
-                new ds.Tuple();
+                new hink.Tuple();
             });
         });
 
         it('should throw if first arg is zero or negative', function() {
             assert.throws(function() {
-                new ds.Tuple(0)
+                new hink.Tuple(0)
             });
             assert.throws(function() {
-                new ds.Tuple(-100)
+                new hink.Tuple(-100)
             });
         });
     });
 
     describe('#get', function() {
         it('should get the object at the supplied index', function() {
-            var t = new ds.Tuple(limit, i1);
+            var t = new hink.Tuple(limit, i1);
             assert.equal(t.get(0), i1);
         });
 
         it('should throw if index is out of bounds', function() {
-            var t = new ds.Tuple(limit);
+            var t = new hink.Tuple(limit);
             assert.throws(function() {
                 t.get(100);
             });
@@ -250,14 +250,14 @@ describe('Tuple', function() {
 
     describe('#add', function() {
         it('should add the supplied object to the Tuple if there\'s space left', function() {
-            var t = new ds.Tuple(limit, i1);
+            var t = new hink.Tuple(limit, i1);
             t.add(i2);
             assert.equal(t.get(0), i1);
             assert.equal(t.get(1), i2);
         });
 
         it('should throw if reached limit', function() {
-            var t = new ds.Tuple(limit, i1);
+            var t = new hink.Tuple(limit, i1);
             t.add(i2);
             assert.throws(function() {
                 t.add({c:345});
@@ -267,7 +267,7 @@ describe('Tuple', function() {
 
     describe('#put', function() {
         it('should update the object at the supplied index with the supplied value if index <= limit', function() {
-            var t = new ds.Tuple(limit, i1);
+            var t = new hink.Tuple(limit, i1);
             var i3 = {c:345};
             t.put(0, i3);
             t.put(1, i2);
@@ -278,7 +278,7 @@ describe('Tuple', function() {
         });
 
         it('should throw if index > limit', function() {
-            var t = new ds.Tuple(limit, i1);
+            var t = new hink.Tuple(limit, i1);
             t.add(i2);
             assert.throws(function() {
                 t.put(2, {c:345});
@@ -287,7 +287,7 @@ describe('Tuple', function() {
     });
 });
 
-var Stack = ds.Stack;
+var Stack = hink.Stack;
 describe('Stack', function() {
 
     var testData = [{a: 123}, [3, 2, 1], 1, 2, 3, 'a', 'b', 'c'];
@@ -301,32 +301,32 @@ describe('Stack', function() {
 
     describe('#ctor', function() {
         it('should accept an array as arg to init the data', function() {
-            var s = new ds.Stack(testData);
+            var s = new hink.Stack(testData);
             testStack(testData, s);
         });
 
         it('should accept varargs to init the data', function() {
             var t = testData;
             var u = [t[0], t[1], t[2]];
-            var s = new ds.Stack(t[0], t[1], t[2]);
+            var s = new hink.Stack(t[0], t[1], t[2]);
             testStack(u, s);
         });
 
         it('should also accept no arguments', function() {
-            var s = new ds.Stack();
+            var s = new hink.Stack();
         });
     });
 
     describe('#peek', function() {
         it('should return the element that is first to be popped', function() {
-            var s = new ds.Stack(testData);
+            var s = new hink.Stack(testData);
             assert.equal(testData[testData.length - 1], s.peek);
         });
     });
 
     describe('#push', function() {
         it('should add the element to the end of stack', function() {
-            var s = new ds.Stack();
+            var s = new hink.Stack();
             for(var i = 0, max = testData.length; i < max; i++) {
                 s.push(testData[i]);
                 assert.equal(s.peek, testData[i]);
@@ -337,7 +337,7 @@ describe('Stack', function() {
 
     describe('#pop', function() {
         it('should pop the element from the end of the stack (removing it)', function() {
-            var s = new ds.Stack();
+            var s = new hink.Stack();
             var t1 = {a:123};
             var t2 = {b:234};
             s.push(t1);
@@ -351,7 +351,7 @@ describe('Stack', function() {
 
     describe('#deplete', function() {
         it('should call the callback with each of the items in the Queue, thus depleting it', function() {
-            var s = new ds.Stack(testData);
+            var s = new hink.Stack(testData);
             var counter = testData.length - 1;
             assert.equal(s.data.length, testData.length);
             s.deplete(function(element) {
@@ -364,7 +364,7 @@ describe('Stack', function() {
     });
 });
 
-var Queue = ds.Queue;
+var Queue = hink.Queue;
 describe('Queue', function() {
 
     var testData = [{a: 123}, [3, 2, 1], 1, 2, 3, 'a', 'b', 'c'];
@@ -378,25 +378,25 @@ describe('Queue', function() {
 
     describe('#ctor', function() {
         it('should accept an array to init the data', function() {
-            var q = new ds.Queue(testData);
+            var q = new hink.Queue(testData);
             testQueue(testData, q);
         });
 
         it('should accept varargs to init the data', function() {
             var t = testData;
             var u = [t[0], t[1], t[2]];
-            var q = new ds.Queue(t[0], t[1], t[2]);
+            var q = new hink.Queue(t[0], t[1], t[2]);
             testQueue(u, q);
         });
 
         it('should accept no args', function() {
-            var q = new ds.Queue();
+            var q = new hink.Queue();
         });
     });
 
     describe('#deq', function() {
         it('should return and remove the element that is next to be dequeued', function() {
-            var q = new ds.Queue(testData);
+            var q = new hink.Queue(testData);
             assert.equal(q.peek, testData[0]);
             assert.equal(q.deq(), testData[0]);
             assert.equal(q.peek, testData[1]);
@@ -405,7 +405,7 @@ describe('Queue', function() {
 
     describe('#enq', function() {
         it('should enqueue the element', function() {
-            var q = new ds.Queue();
+            var q = new hink.Queue();
             assert.equal(q.peek, undefined);
             q.enq(testData[0]);
             assert.equal(q.peek, testData[0]);
@@ -414,7 +414,7 @@ describe('Queue', function() {
 
     describe('#peek', function() {
         it('should return the element that is next to be dequeued', function() {
-            var q = new ds.Queue(testData);
+            var q = new hink.Queue(testData);
             assert.equal(q.peek, testData[0]);
             q.deq();
             assert.equal(q.peek, testData[1]);
@@ -423,7 +423,7 @@ describe('Queue', function() {
 
     describe('#deplete', function() {
         it('should call the callback with each of the items in the Queue, thus depleting it', function() {
-            var q = new ds.Queue(testData);
+            var q = new hink.Queue(testData);
             var counter = 0;
             assert.equal(q.data.length, testData.length);
             q.deplete(function(element) {
