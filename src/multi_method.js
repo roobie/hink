@@ -1,14 +1,16 @@
-;(function multimethod_closure() {
+;(function(definition) {
+    this.mm = definition();
+})(function multimethod_closure() {
     "use strict";
 
-    var fluent = function fluent(fn) {
+    var fluent = function fluent_decorator(fn) {
         return function () {
             fn.apply(this, arguments);
             return this;
         };
     };
 
-    var identity = function identity(a) {
+    var identity = function identity_func(a) {
         return a;
     };
 
@@ -25,7 +27,7 @@
         onType: 1
     };
 
-    var multi = this.multi = function multi() {
+    var multi = function multi() {
         var lookup = function lookup(type, args) {
             // TODO: if dispatching on type, maybe build an algo that checks for most specific.
             // I.e. if we have a constructor `Animal` that another constructor (e.g. `Bear`) whose
@@ -122,10 +124,19 @@
             },
             onvalues: {
                 value: getOnFunc(types.onValue)
+            },
+            on: {
+                value: {
+                    type: getOnFunc (types.onType),
+                    types: getOnFunc (types.onType),
+                    value: getOnFunc (types.onValue),
+                    values: getOnFunc (types.onValue)
+                }
             }
         });
 
         return multimethod;
     };
 
-}).call(this);
+    return multi;
+});

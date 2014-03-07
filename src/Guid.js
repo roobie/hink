@@ -6,7 +6,7 @@
     } else {
         this.Guid = definition();
     }
-})(function() {
+}).call(this, function() {
 
     /// Constructor:
     function Guid() {
@@ -33,7 +33,7 @@
     Guid.empty = (function(){
         var g = new Guid();
         for(var i = 0; i < g.bytes.length; i++) {
-            g.pop ();
+            g.bytes.pop();
         }
         g.bytes.push.apply(g.bytes, Guid.formats[0].replace(/N/g, "0").split(""));
         return g;
@@ -79,5 +79,6 @@
     Guid.prototype.equals = function Guid_equals(other) {
         return this.valueOf() === other.valueOf();
     };
+
     return Guid;
 });
