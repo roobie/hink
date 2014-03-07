@@ -1,4 +1,4 @@
 hink.js
 =================
 
-A collection of datastructures in js
+A collection of fun stuff in js.

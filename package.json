@@ -1,11 +1,11 @@
 {
-    "name": "datastructures",
-    "version": "0.0.0.1",
+    "name": "Hink",
+    "version": "0.0.0.2",
     "author": "bjorn.roberg at gmail dot com",
-    "description": "a collection of data structures in javascript",
+    "description": "a collection of fun stuff in JavaScript",
     "repository": {
         "type": "git",
-        "url": "https://github.com/roobie/datastructures.js"
+        "url": "https://github.com/roobie/hink.git"
     },
     "devDependencies": {
         "mocha": "*",
