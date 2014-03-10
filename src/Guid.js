@@ -1,12 +1,4 @@
-;(function(definition) {
-    if (this.define) {
-        this.define ("Guid", definition);
-    } else if (this.module) {
-        this.module.exports = definition;
-    } else {
-        this.Guid = definition();
-    }
-}).call(this, function() {
+define(function() {
 
     /// Constructor:
     function Guid() {

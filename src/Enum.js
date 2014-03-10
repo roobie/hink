@@ -1,6 +1,4 @@
-(function(definition) {
-    this.Enum = definition();
-})(function() {
+define(function() {
     return function Enum(flags) {
         var num = 0;
         var getNextBits = function() {
