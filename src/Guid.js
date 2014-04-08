@@ -24,10 +24,14 @@ define(function() {
 
     Guid.empty = (function(){
         var g = new Guid();
-        for(var i = 0; i < g.bytes.length; i++) {
+        for(var i = 0, max = g.bytes.length; i < max; i++) {
             g.bytes.pop();
         }
-        g.bytes.push.apply(g.bytes, Guid.formats[0].replace(/N/g, "0").split(""));
+        g.bytes.push.apply(
+            g.bytes,
+            Guid.formats[0]
+                .split("")
+                .map(function (n) { return 0; }));
         return g;
     })();
 
